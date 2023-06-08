@@ -12,6 +12,19 @@
 #include "rijndael.h"
 #endif
 
+#if HAVE_CIPHER_WOLF_AES_256_CBC
+#ifdef HAVE_CONFIG_H
+    #include <config.h>
+#endif
+#ifndef WOLFSSL_USER_SETTINGS
+    #include <wolfssl/options.h>
+#endif
+#include <wolfssl/wolfcrypt/settings.h>
+
+#include <wolfssl/wolfcrypt/wc_encrypt.h>
+#endif
+
+
 /*
 ** RC4 implementation
 */
@@ -196,6 +209,70 @@ sqlite3mcAES256(Rijndael* aesCtx, int page, int encrypt, unsigned char encryptio
 }
 
 #endif
+
+#if HAVE_CIPHER_WOLF_AES_256_CBC
+
+SQLITE_PRIVATE int
+sqlite3mcWolfAES256(int page, int encrypt, unsigned char encryptionKey[KEYLENGTH_AES256],
+                unsigned char* datain, int datalen, unsigned char* dataout)
+{
+  int rc = SQLITE_OK;
+  unsigned char initial[16];
+  unsigned char pagekey[KEYLENGTH_AES256];
+  unsigned char nkey[KEYLENGTH_AES256+4+4];
+  int keyLength = KEYLENGTH_AES256;
+  int nkeylen = keyLength + 4 + 4;
+  int j;
+  int len = 0;
+
+  for (j = 0; j < keyLength; j++)
+  {
+    nkey[j] = encryptionKey[j];
+  }
+  nkey[keyLength+0] = 0xff &  page;
+  nkey[keyLength+1] = 0xff & (page >>  8);
+  nkey[keyLength+2] = 0xff & (page >> 16);
+  nkey[keyLength+3] = 0xff & (page >> 24);
+
+  /* AES encryption needs some 'salt' */
+  nkey[keyLength+4] = 0x73;
+  nkey[keyLength+5] = 0x41;
+  nkey[keyLength+6] = 0x6c;
+  nkey[keyLength+7] = 0x54;
+
+  sqlite3mcGetSHABinary(nkey, nkeylen, pagekey);
+  sqlite3mcGenerateInitialVector(page, initial);
+
+  if (encrypt)
+  {
+    printf("************** ENCRYPTING [");
+    if (0 != wc_AesCbcEncryptWithKey(dataout, datain, datalen, pagekey, AES_256_KEY_SIZE, initial))
+    {
+        printf("FAILED]\n");
+        rc = SQLITE_ERROR;
+    }
+    else
+    {
+        printf("SUCCESS]\n");
+    }
+  }
+  else
+  {
+    printf("************** DECRYPTING [");
+    if (0 != wc_AesCbcDecryptWithKey(dataout, datain, datalen, pagekey, AES_256_KEY_SIZE, initial))
+    {
+        printf("FAILED]\n");
+        rc = SQLITE_ERROR;
+    }
+    else 
+    {
+        printf("SUCCESS]\n");
+    }
+  }
+  
+  return rc;
+}
+#endif // HAVE_CIPHER_WOLF_AES_256_CBC
 
 /* Check hex encoding */
 SQLITE_PRIVATE int

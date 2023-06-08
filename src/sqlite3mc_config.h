@@ -25,6 +25,10 @@
 #define HAVE_CIPHER_AES_256_CBC WXSQLITE3_HAVE_CIPHER_AES_256_CBC
 #endif
 
+#ifdef WXSQLITE3_HAVE_CIPHER_WOLF_AES_256_CBC
+#define HAVE_CIPHER_WOLF_AES_256_CBC WXSQLITE3_HAVE_CIPHER_WOLF_AES_256_CBC
+#endif
+
 #ifdef WXSQLITE3_HAVE_CIPHER_CHACHA20
 #define HAVE_CIPHER_CHACHA20 WXSQLITE3_HAVE_CIPHER_CHACHA20
 #endif
@@ -46,6 +50,10 @@
 
 #ifndef HAVE_CIPHER_AES_256_CBC
 #define HAVE_CIPHER_AES_256_CBC 1
+#endif
+
+#ifndef HAVE_CIPHER_WOLF_AES_256_CBC
+#define HAVE_CIPHER_WOLF_AES_256_CBC 1
 #endif
 
 #ifndef HAVE_CIPHER_CHACHA20
@@ -71,24 +79,27 @@
 #ifdef SQLITE3MC_OMIT_BUILTIN_CIPHERS
 #undef HAVE_CIPHER_AES_128_CBC
 #undef HAVE_CIPHER_AES_256_CBC
+#undef HAVE_CIPHER_WOLF_AES_256_CBC
 #undef HAVE_CIPHER_CHACHA20
 #undef HAVE_CIPHER_SQLCIPHER
 #undef HAVE_CIPHER_RC4
-#define HAVE_CIPHER_AES_128_CBC 0
-#define HAVE_CIPHER_AES_256_CBC 0
-#define HAVE_CIPHER_CHACHA20    0
-#define HAVE_CIPHER_SQLCIPHER   0
-#define HAVE_CIPHER_RC4         0
+#define HAVE_CIPHER_AES_128_CBC      0
+#define HAVE_CIPHER_AES_256_CBC      0
+#define HAVE_CIPHER_WOLF_AES_256_CBC 0
+#define HAVE_CIPHER_CHACHA20         0
+#define HAVE_CIPHER_SQLCIPHER        0
+#define HAVE_CIPHER_RC4              0
 #endif
 
 /*
 ** Check that at least one cipher is be supported
 */
-#if HAVE_CIPHER_AES_128_CBC == 0 &&  \
-    HAVE_CIPHER_AES_256_CBC == 0 &&  \
-    HAVE_CIPHER_CHACHA20    == 0 &&  \
-    HAVE_CIPHER_SQLCIPHER   == 0 &&  \
-    HAVE_CIPHER_RC4         == 0
+#if HAVE_CIPHER_AES_128_CBC      == 0 &&  \
+    HAVE_CIPHER_AES_256_CBC      == 0 &&  \
+    HAVE_CIPHER_WOLF_AES_256_CBC == 0 &&  \
+    HAVE_CIPHER_CHACHA20         == 0 &&  \
+    HAVE_CIPHER_SQLCIPHER        == 0 &&  \
+    HAVE_CIPHER_RC4              == 0
 #pragma message ("sqlite3mc_config.h: WARNING - No built-in cipher scheme enabled!")
 #endif
 

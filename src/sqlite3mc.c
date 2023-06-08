@@ -149,6 +149,7 @@ mcRegisterCodecExtensions(sqlite3* db, char** pzErrMsg, const sqlite3_api_routin
 
 #include "cipher_wxaes128.c"
 #include "cipher_wxaes256.c"
+#include "cipher_wolfaes256.c"
 #include "cipher_chacha20.c"
 #include "cipher_sqlcipher.c"
 #include "cipher_sds_rc4.c"
@@ -610,6 +611,12 @@ sqlite3mc_initialize(const char* arg)
   if (rc == SQLITE_OK)
   {
     rc = sqlite3mcRegisterCipher(&mcAES256Descriptor, mcAES256Params, (CODEC_TYPE_AES256 == CODEC_TYPE));
+  }
+#endif
+#if HAVE_CIPHER_WOLF_AES_256_CBC
+  if (rc == SQLITE_OK)
+  {
+    rc = sqlite3mcRegisterCipher(&mcWolfAES256Descriptor, mcWolfAES256Params, (CODEC_TYPE_WOLFAES256 == CODEC_TYPE));
   }
 #endif
 #if HAVE_CIPHER_CHACHA20
