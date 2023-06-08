@@ -80,6 +80,7 @@ noinst_HEADERS = \
     src/cipher_sds_rc4.c \
     src/cipher_sqlcipher.c \
     src/cipher_wxaes128.c \
+    src/cipher_wolfaes128.c \
     src/cipher_wxaes256.c \
     src/cipher_wolfaes256.c \
     src/codec_algos.c \

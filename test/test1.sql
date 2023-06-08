@@ -1,5 +1,5 @@
 .echo on
-pragma cipher='wolfaes256cbc';
+pragma cipher='wolfaes128cbc';
 pragma legacy=4;
 pragma key='test1';
 create table t1 (c1 int, c2 char);

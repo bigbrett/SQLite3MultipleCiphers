@@ -33,8 +33,9 @@
 #define CODEC_TYPE_CHACHA20    3
 #define CODEC_TYPE_SQLCIPHER   4
 #define CODEC_TYPE_RC4         5
-#define CODEC_TYPE_WOLFAES256  6
-#define CODEC_TYPE_MAX_BUILTIN 6
+#define CODEC_TYPE_WOLFAES128  6
+#define CODEC_TYPE_WOLFAES256  7
+#define CODEC_TYPE_MAX_BUILTIN 7
 
 /*
 ** Definition of API functions

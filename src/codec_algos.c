@@ -156,6 +156,72 @@ sqlite3mcAES128(Rijndael* aesCtx, int page, int encrypt, unsigned char encryptio
 
 #endif
 
+#if HAVE_CIPHER_WOLF_AES_128_CBC
+
+SQLITE_PRIVATE int
+sqlite3mcWolfAES128(int page, int encrypt, unsigned char encryptionKey[KEYLENGTH_AES128],
+                unsigned char* datain, int datalen, unsigned char* dataout)
+{
+  int rc = SQLITE_OK;
+  unsigned char initial[16];
+  unsigned char pagekey[KEYLENGTH_AES128];
+  unsigned char nkey[KEYLENGTH_AES128+4+4];
+  int keyLength = KEYLENGTH_AES128;
+  int nkeylen = keyLength + 4 + 4;
+  int j;
+  int len = 0;
+
+  for (j = 0; j < keyLength; j++)
+  {
+    nkey[j] = encryptionKey[j];
+  }
+  nkey[keyLength+0] = 0xff &  page;
+  nkey[keyLength+1] = 0xff & (page >>  8);
+  nkey[keyLength+2] = 0xff & (page >> 16);
+  nkey[keyLength+3] = 0xff & (page >> 24);
+
+  /* AES encryption needs some 'salt' */
+  nkey[keyLength+4] = 0x73;
+  nkey[keyLength+5] = 0x41;
+  nkey[keyLength+6] = 0x6c;
+  nkey[keyLength+7] = 0x54;
+
+  sqlite3mcGetMD5Binary(nkey, nkeylen, pagekey);
+  sqlite3mcGenerateInitialVector(page, initial);
+
+  if (encrypt)
+  {
+      printf("************** ENCRYPTING [");
+      if (0 != wc_AesCbcEncryptWithKey(dataout, datain, datalen, pagekey, AES_128_KEY_SIZE, initial))
+      {
+          printf("FAILED]\n");
+          rc = SQLITE_ERROR;
+      }
+      else
+      {
+          printf("SUCCESS]\n");
+      }
+  }
+  else
+  {
+      printf("************** DECRYPTING [");
+      if (0 != wc_AesCbcDecryptWithKey(dataout, datain, datalen, pagekey, AES_128_KEY_SIZE, initial))
+      {
+          printf("FAILED]\n");
+          rc = SQLITE_ERROR;
+      }
+      else
+      {
+          printf("SUCCESS]\n");
+      }
+  }
+
+  return rc;
+}
+
+#endif
+
+
 #if HAVE_CIPHER_AES_256_CBC
 
 SQLITE_PRIVATE int
