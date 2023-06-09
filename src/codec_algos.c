@@ -12,7 +12,7 @@
 #include "rijndael.h"
 #endif
 
-#if HAVE_CIPHER_WOLF_AES_256_CBC
+#if HAVE_CIPHER_WOLF_AES_256_CBC || HAVE_CIPHER_WOLF_AES_128_CBC
 #ifdef HAVE_CONFIG_H
     #include <config.h>
 #endif
@@ -22,6 +22,8 @@
 #include <wolfssl/wolfcrypt/settings.h>
 
 #include <wolfssl/wolfcrypt/wc_encrypt.h>
+#include <wolfssl/wolfcrypt/md5.h>
+#include <wolfssl/wolfcrypt/sha256.h>
 #endif
 
 
@@ -102,6 +104,46 @@ sqlite3mcGenerateInitialVector(int seed, unsigned char iv[16])
   sqlite3mcGetMD5Binary((unsigned char*) initkey, 16, iv);
 }
 
+#if HAVE_CIPHER_WOLF_AES_128_CBC || HAVE_CIPHER_WOLF_AES_256
+
+SQLITE_PRIVATE void
+sqlite3mcGetWolfMD5Binary(unsigned char* data, int length, unsigned char* digest)
+{
+  Md5 md5;
+  wc_InitMd5(&md5);
+  wc_Md5Update(&md5, data, length);
+  wc_Md5Final(&md5, digest);
+}
+
+SQLITE_PRIVATE void
+sqlite3mcGetWolfSHABinary(unsigned char* data, int length, unsigned char* digest)
+{
+  wc_Sha256 sha;
+  wc_InitSha256(&sha);
+  wc_Sha256Update(&sha, data, length);
+  wc_Sha256Final(&sha, digest);
+}
+
+SQLITE_PRIVATE void
+sqlite3mcGenerateWolfInitialVector(int seed, unsigned char iv[16])
+{
+  unsigned char initkey[16];
+  int j, q;
+  int z = seed + 1;
+  for (j = 0; j < 4; j++)
+  {
+    MODMULT(52774, 40692,  3791, 2147483399L, z);
+    initkey[4*j+0] = 0xff &  z;
+    initkey[4*j+1] = 0xff & (z >>  8);
+    initkey[4*j+2] = 0xff & (z >> 16);
+    initkey[4*j+3] = 0xff & (z >> 24);
+  }
+  sqlite3mcGetWolfMD5Binary((unsigned char*) initkey, 16, iv);
+}
+
+#endif //HAVE_CIPHER_WOLF_AES_128_CBC || HAVE_CIPHER_WOLF_AES_256
+
+
 #if HAVE_CIPHER_AES_128_CBC
 
 SQLITE_PRIVATE int
@@ -144,7 +186,7 @@ sqlite3mcAES128(Rijndael* aesCtx, int page, int encrypt, unsigned char encryptio
   {
     len = RijndaelBlockDecrypt(aesCtx, datain, datalen*8, dataout);
   }
-  
+
   /* It is a good idea to check the error code */
   if (len < 0)
   {
@@ -186,7 +228,7 @@ sqlite3mcWolfAES128(int page, int encrypt, unsigned char encryptionKey[KEYLENGTH
   nkey[keyLength+6] = 0x6c;
   nkey[keyLength+7] = 0x54;
 
-  sqlite3mcGetMD5Binary(nkey, nkeylen, pagekey);
+  sqlite3mcGetWolfMD5Binary(nkey, nkeylen, pagekey);
   sqlite3mcGenerateInitialVector(page, initial);
 
   if (encrypt)
@@ -264,7 +306,7 @@ sqlite3mcAES256(Rijndael* aesCtx, int page, int encrypt, unsigned char encryptio
   {
     len = RijndaelBlockDecrypt(aesCtx, datain, datalen*8, dataout);
   }
-  
+
   /* It is a good idea to check the error code */
   if (len < 0)
   {
@@ -306,7 +348,7 @@ sqlite3mcWolfAES256(int page, int encrypt, unsigned char encryptionKey[KEYLENGTH
   nkey[keyLength+6] = 0x6c;
   nkey[keyLength+7] = 0x54;
 
-  sqlite3mcGetSHABinary(nkey, nkeylen, pagekey);
+  sqlite3mcGetWolfSHABinary(nkey, nkeylen, pagekey);
   sqlite3mcGenerateInitialVector(page, initial);
 
   if (encrypt)
@@ -330,12 +372,12 @@ sqlite3mcWolfAES256(int page, int encrypt, unsigned char encryptionKey[KEYLENGTH
         printf("FAILED]\n");
         rc = SQLITE_ERROR;
     }
-    else 
+    else
     {
         printf("SUCCESS]\n");
     }
   }
-  
+
   return rc;
 }
 #endif // HAVE_CIPHER_WOLF_AES_256_CBC

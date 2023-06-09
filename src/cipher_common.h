@@ -178,6 +178,12 @@ SQLITE_PRIVATE void sqlite3mcRC4(unsigned char* key, int keylen, unsigned char* 
 
 SQLITE_PRIVATE void sqlite3mcGetMD5Binary(unsigned char* data, int length, unsigned char* digest);
 
+#if HAVE_CIPHER_WOLF_AES_128_CBC || HAVE_CIPHER_WOLF_AES_256
+SQLITE_PRIVATE void sqlite3mcGetWolfSHABinary(unsigned char* data, int length, unsigned char* digest);
+
+SQLITE_PRIVATE void sqlite3mcGetWolfMD5Binary(unsigned char* data, int length, unsigned char* digest);
+#endif
+
 SQLITE_PRIVATE void sqlite3mcGetSHABinary(unsigned char* data, int length, unsigned char* digest);
 
 SQLITE_PRIVATE void sqlite3mcGenerateInitialVector(int seed, unsigned char iv[16]);
