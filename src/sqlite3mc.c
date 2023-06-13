@@ -91,7 +91,7 @@ extern SQLITE_API LPWSTR sqlite3_win32_utf8_to_unicode(const char*);
 #include "sqlite3patched.c"
 
 /*
-** Include SQLite3MultiCipher components 
+** Include SQLite3MultiCipher components
 */
 #include "sqlite3mc_config.h"
 #include "sqlite3mc.h"
@@ -149,8 +149,16 @@ mcRegisterCodecExtensions(sqlite3* db, char** pzErrMsg, const sqlite3_api_routin
 
 #include "cipher_wxaes128.c"
 #include "cipher_wxaes256.c"
+
+#if HAVE_CIPHER_WOLF_AES_128_CBC || HAVE_CIPHER_WOLF_AES_256_CBC
 #include "cipher_wolfaes128.c"
 #include "cipher_wolfaes256.c"
+#include <wolfssl/wolfcrypt/error-crypt.h>
+#ifdef HAVE_FIPS
+#include <wolfssl/wolfcrypt/fips_test.h>
+#endif
+#endif
+
 #include "cipher_chacha20.c"
 #include "cipher_sqlcipher.c"
 #include "cipher_sds_rc4.c"
@@ -598,9 +606,41 @@ sqlite3mcTermCipherTables()
   }
 }
 
+#if HAVE_CIPHER_WOLF_AES_128_CBC || HAVE_CIPHER_WOLF_AES_256_CBC
+#ifdef HAVE_FIPS
+static void wcFipsCb(int ok, int err, const char* hash)
+{
+    sqlite3_log(SQLITE_ERROR, "wolfCrypt Fips error callback, ok = %d, err = %d\n", ok, err);
+    sqlite3_log(SQLITE_ERROR, "message = %s\n", wc_GetErrorString(err));
+    sqlite3_log(SQLITE_ERROR, "hash = %s\n", hash);
+    if (err == IN_CORE_FIPS_E) {
+        sqlite3_log(SQLITE_ERROR, "In core integrity hash check failure, copy above hash\n");
+        sqlite3_log(SQLITE_ERROR, "into verifyCore[] in fips_test.c and rebuild\n");
+    }
+}
+#endif
+#endif
+
 int
 sqlite3mc_initialize(const char* arg)
 {
+#if HAVE_CIPHER_WOLF_AES_128_CBC || HAVE_CIPHER_WOLF_AES_256_CBC
+  if (wolfCrypt_Init() != 0)
+  {
+      return SQLITE_ERROR;
+  }
+
+#ifdef HAVE_FIPS
+  wolfCrypt_SetCb_fips(wcFipsCb);
+  wc_SetSeed_Cb(wc_GenerateSeed);
+#endif
+
+  if (wolfCrypt_GetStatus_fips() != 0)
+  {
+      return SQLITE_ERROR;
+  }
+#endif
+
   int rc = sqlite3mcInitCipherTables();
 #if HAVE_CIPHER_AES_128_CBC
   if (rc == SQLITE_OK)
