@@ -9,6 +9,15 @@
 
 #include "cipher_common.h"
 
+#ifdef HAVE_CONFIG_H
+    #include <config.h>
+#endif
+#ifndef WOLFSSL_USER_SETTINGS
+    #include <wolfssl/options.h>
+#endif
+#include <wolfssl/wolfcrypt/settings.h>
+
+
 /* --- AES 128-bit cipher (wxSQLite3) --- */
 #if HAVE_CIPHER_WOLF_AES_128_CBC
 
