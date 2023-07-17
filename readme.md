@@ -1,5 +1,9 @@
-# SQLite3MultipleCiphers
+# WolfSSL-specific instructions
+To use this P.O.C. in conjunction with wolfSSL, you must first build and install wolfSSL on your machine by following the [installation instructions](https://www.wolfssl.com/documentation/manuals/wolfssl/chapter02.html). 
 
+Once you have installed wolfSSL, you can configure and build SQLite3MultipleCiphers by following the [SQLite3MultipleCiphers installation documentation](https://utelle.github.io/SQLite3MultipleCiphers/docs/installation/install_overview/). WolfSSL-backed AES256 encryption should be the default cipher implementation, and is able to be referenced under the cipher name "`wolfaes256cbc`".
+
+# SQLite3MultipleCiphers
 The project **SQLite3 Multiple Ciphers** implements an encryption extension for [SQLite](https://www.sqlite.org) with support for multiple ciphers. In the past the encryption extension was bundled with the project [wxSQLite3](https://github.com/utelle/wxsqlite3), which provides a thin SQLite3 database wrapper for [wxWidgets](https://www.wxwidgets.org/).
 
 In the course of time several developers had asked for a stand-alone version of the _wxSQLite3 encryption extension_. Originally it was planned to undertake the separation process already in 2019, but due to personal matters it had to be postponed for several months. However, maybe that wasn't that bad after all, because there were changes to the public SQLite code on Feb 7, 2020: [“Simplify the code by removing the unsupported and undocumented SQLITE_HAS_CODEC compile-time option”](https://www.sqlite.org/src/timeline?c=5a877221ce90e752). These changes took effect with the release of SQLite version 3.32.0 on May 22, 2020. As a consequence, all SQLite encryption extensions out there will not be able to easily support SQLite version 3.32.0 and later.
