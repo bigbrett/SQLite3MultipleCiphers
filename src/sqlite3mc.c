@@ -633,12 +633,12 @@ sqlite3mc_initialize(const char* arg)
 #ifdef HAVE_FIPS
   wolfCrypt_SetCb_fips(wcFipsCb);
   wc_SetSeed_Cb(wc_GenerateSeed);
-#endif
 
   if (wolfCrypt_GetStatus_fips() != 0)
   {
       return SQLITE_ERROR;
   }
+#endif
 #endif
 
   int rc = sqlite3mcInitCipherTables();
