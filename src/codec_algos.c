@@ -233,28 +233,16 @@ sqlite3mcWolfAES128(int page, int encrypt, unsigned char encryptionKey[KEYLENGTH
 
   if (encrypt)
   {
-      printf("************** ENCRYPTING [");
       if (0 != wc_AesCbcEncryptWithKey(dataout, datain, datalen, pagekey, AES_128_KEY_SIZE, initial))
       {
-          printf("FAILED]\n");
           rc = SQLITE_ERROR;
-      }
-      else
-      {
-          printf("SUCCESS]\n");
       }
   }
   else
   {
-      printf("************** DECRYPTING [");
       if (0 != wc_AesCbcDecryptWithKey(dataout, datain, datalen, pagekey, AES_128_KEY_SIZE, initial))
       {
-          printf("FAILED]\n");
           rc = SQLITE_ERROR;
-      }
-      else
-      {
-          printf("SUCCESS]\n");
       }
   }
 
@@ -353,28 +341,16 @@ sqlite3mcWolfAES256(int page, int encrypt, unsigned char encryptionKey[KEYLENGTH
 
   if (encrypt)
   {
-    printf("************** ENCRYPTING [");
     if (0 != wc_AesCbcEncryptWithKey(dataout, datain, datalen, pagekey, AES_256_KEY_SIZE, initial))
     {
-        printf("FAILED]\n");
         rc = SQLITE_ERROR;
-    }
-    else
-    {
-        printf("SUCCESS]\n");
     }
   }
   else
   {
-    printf("************** DECRYPTING [");
     if (0 != wc_AesCbcDecryptWithKey(dataout, datain, datalen, pagekey, AES_256_KEY_SIZE, initial))
     {
-        printf("FAILED]\n");
         rc = SQLITE_ERROR;
-    }
-    else
-    {
-        printf("SUCCESS]\n");
     }
   }
 
