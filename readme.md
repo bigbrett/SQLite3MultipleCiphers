@@ -3,6 +3,9 @@ To use this P.O.C. in conjunction with wolfSSL, you must first build and install
 
 Once you have installed wolfSSL, you can configure and build SQLite3MultipleCiphers by following the [SQLite3MultipleCiphers installation documentation](https://utelle.github.io/SQLite3MultipleCiphers/docs/installation/install_overview/). WolfSSL-backed AES256 encryption should be the default cipher implementation, and is able to be referenced under the cipher name "`wolfaes256cbc`".
 
+Please refer to the [official SQLite3MultipleCiphers documentation](https://utelle.github.io/SQLite3MultipleCiphers/) for usage instructions.
+
+
 # SQLite3MultipleCiphers
 The project **SQLite3 Multiple Ciphers** implements an encryption extension for [SQLite](https://www.sqlite.org) with support for multiple ciphers. In the past the encryption extension was bundled with the project [wxSQLite3](https://github.com/utelle/wxsqlite3), which provides a thin SQLite3 database wrapper for [wxWidgets](https://www.wxwidgets.org/).
 
