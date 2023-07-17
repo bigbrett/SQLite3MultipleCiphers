@@ -112,7 +112,7 @@ noinst_HEADERS = \
     src/test_windirent.h
 
 lib@SQLITE3MC_LIBNAME@_la_LDFLAGS = -no-undefined $(AM_LDFLAGS)
-lib@SQLITE3MC_LIBNAME@_la_LIBADD = -ldl -lm
+lib@SQLITE3MC_LIBNAME@_la_LIBADD = -ldl -lm -lwolfssl
 
 
 # Samples (don't need to be installed).
